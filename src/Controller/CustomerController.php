@@ -4,11 +4,13 @@ namespace App\Controller;
 
 use App\Entity\Customer;
 use App\Form\CustomerType;
+use App\Message\KafkaMessage;
 use App\Repository\CustomerRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('/customer')]
 class CustomerController extends AbstractController
@@ -49,13 +51,15 @@ class CustomerController extends AbstractController
     }
 
     #[Route('/{id}/edit', name: 'app_customer_edit', methods: ['GET', 'POST'])]
-    public function edit(Request $request, Customer $customer, CustomerRepository $customerRepository): Response
+    public function edit(Request $request, Customer $customer, CustomerRepository $customerRepository, MessageBusInterface $bus): Response
     {
         $form = $this->createForm(CustomerType::class, $customer);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
             $customerRepository->save($customer, true);
+
+            $bus->dispatch(new KafkaMessage(json_encode(['customer' =>  $customer])));
 
             return $this->redirectToRoute('app_customer_index', [], Response::HTTP_SEE_OTHER);
         }
