@@ -171,6 +171,8 @@ class Customer implements \JsonSerializable
         return [
             'id' => $this->getId(),
             'name' => $this->getName(),
+            'email' => $this->getEmail(),
+            'phone' => $this->getPhone(),
         ];
     }
 }
