@@ -3,7 +3,7 @@ enqueue:
     transport:
       dsn: "rdkafka://"
       global:
-        group.id: 'myapp'
+        group.id: 'customerapp'
         metadata.broker.list: "%env(KAFKA_BROKER_LIST)%"
       topic:
         auto.offset.reset: beginning
